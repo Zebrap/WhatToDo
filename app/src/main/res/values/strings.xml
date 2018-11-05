@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">WhatToDo</string>
+    <string name="title_activity_register">Register</string>
+    <string name="Username">Nazwa</string>
+    <string name="password">Hasło</string>
+    <string name="login">Zaloguj</string>
+    <string name="registerHere">Zarejestruj się</string>
+    <string name="preferences">Preferencje</string>
+    <string name="logout">Wyloguj</string>
+    <string name="email">Email</string>
+</resources>
