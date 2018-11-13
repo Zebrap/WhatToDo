@@ -8,4 +8,6 @@
     <string name="preferences">Preferencje</string>
     <string name="logout">Wyloguj</string>
     <string name="email">Email</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="access_token">pk.eyJ1IjoiemVicmFwdyIsImEiOiJjam9kNTZkMzkwc3RiM3ZvMTNlNHIya2s2In0.DyQaOsbV8AL0kmYR4TF5KQ</string>
 </resources>

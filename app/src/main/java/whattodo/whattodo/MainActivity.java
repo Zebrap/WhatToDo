@@ -16,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.cloudrail.si.CloudRail;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,10 +38,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        etUsername = (EditText)findViewById(R.id.etUsername);
-        etPassword = (EditText)findViewById(R.id.etPasword);
-        btnLogin = (Button) findViewById(R.id.btnLogin);
-        btnRegister = (Button) findViewById(R.id.btnRegister);
+
+        CloudRail.setAppKey("5be18e9b21b62e5228c9e7da");
+
+        etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPasword);
+        btnLogin =  findViewById(R.id.btnLogin);
+        btnRegister =  findViewById(R.id.btnRegister);
 
         btnLogin.setOnClickListener(this);
         btnRegister.setOnClickListener(this);
@@ -55,7 +59,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 final String passowrd = etPassword.getText().toString();
 
            //     LoginRequest loginRequest = new LoginRequest(username,passowrd,responseListener);
-                String url ="https://whattodowebservice.azurewebsites.net/login?login="+username+"&password="+passowrd;
+               String url ="https://whattodowebservice.azurewebsites.net/login?login="+username+"&password="+passowrd;
+        //       String url ="https://whattodowebservice.azurewebsites.net/login?login=admin&password=admin"; // Tests
+
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                         new Response.Listener<String>() {
                             @Override

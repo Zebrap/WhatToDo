@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 public class Main2Activity extends AppCompatActivity implements View.OnClickListener {
-    Button btnLogout;
-    EditText etUsername;
+    Button btnLogout, btnFind;
+    TextView TextUsername;
 
 
     @Override
@@ -18,14 +21,16 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_main2);
 
         btnLogout = (Button) findViewById(R.id.btnLogout);
+        btnFind = (Button) findViewById(R.id.btnFind);
         btnLogout.setOnClickListener(this);
-        etUsername = (EditText) findViewById(R.id.etUsername);
+        btnFind.setOnClickListener(this);
+        TextUsername = (TextView) findViewById(R.id.etUsername);
 
         Intent intent = getIntent();
         String username = intent.getStringExtra("username");
 
         String massage = "Witaj "+username;
-        etUsername.setText(massage);
+        TextUsername.setText(massage);
 
     }
 
@@ -40,6 +45,9 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
             case R.id.btnLogout:
 
                 startActivity(new Intent(this,MainActivity.class));
+                break;
+            case R.id.btnFind:
+                startActivity(new Intent(this,MapsActivity.class));
                 break;
         }
     }
