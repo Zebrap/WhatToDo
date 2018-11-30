@@ -1,6 +1,8 @@
 package whattodo.whattodo;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.wifi.hotspot2.pps.Credential;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,8 +31,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button btnLogin,btnRegister;
-    EditText etUsername, etPassword;
+    private Button btnLogin,btnRegister;
+    private EditText etUsername, etPassword;
 
   //  UserLocal userLocal;
 
@@ -56,10 +58,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.btnLogin:
                 final String username = etUsername.getText().toString();
-                final String passowrd = etPassword.getText().toString();
+                final String password = etPassword.getText().toString();
+              /*  if(username.equals("a")){
+                    Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+                    intent.putExtra("username",username);
+
+                    MainActivity.this.startActivity(intent);
+                }*/
 
            //     LoginRequest loginRequest = new LoginRequest(username,passowrd,responseListener);
-               String url ="https://whattodowebservice.azurewebsites.net/login?login="+username+"&password="+passowrd;
+               String url ="https://whattodowebservice.azurewebsites.net/login?login="+username+"&password="+password;
         //       String url ="https://whattodowebservice.azurewebsites.net/login?login=admin&password=admin"; // Tests
 
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -69,9 +77,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String success = jsonObject.getString("result");
-                                    String preferences = jsonObject.getString("preferences");
-                                    Log.i("array","array: "+preferences);
-                                    if(success.equals("1")){
+                                    JSONObject jsonPref = new JSONObject(jsonObject.getString("preferences"));
+                                    String price = jsonPref.getString("Cena");
+                                    String distance = jsonPref.getString("Odleglosc");
+                                    String food = jsonPref.getString("Jedzenie");
+                                    String alcohol = jsonPref.getString("Alkohol");
+                                    String group = jsonPref.getString("Grupowe");
+                                    String tourism = jsonPref.getString("Zabytki");
+                                    String active = jsonPref.getString("Aktywne");
+                                    String time = jsonPref.getString("CzasMax");
+
+                                    Log.d("array","array: "+price);
+                                    if(success.equals("true")){
+
+                                        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+                                        SharedPreferences.Editor editor = pref.edit();
+                                        editor.putString("username",username);
+                                        editor.putString("price",price);
+                                        editor.putString("distance",distance);
+                                        editor.putString("food",food);
+                                        editor.putString("alcohol",alcohol);
+                                        editor.putString("group",group);
+                                        editor.putString("tourism",tourism);
+                                        editor.putString("active",active);
+                                        editor.putString("time",time);
+                                        editor.commit();
+
                                         Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                                         intent.putExtra("username",username);
 
@@ -79,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }else{
                                         AlertDialog.Builder bulder = new AlertDialog.Builder(MainActivity.this);
                                         bulder.setMessage("Logowanie nieudane")
-                                                .setNegativeButton("spróbuj ponownie: "+success,null)
+                                                .setNegativeButton("spróbuj ponownie: ",null)
                                                 .create()
                                                 .show();
                                     }

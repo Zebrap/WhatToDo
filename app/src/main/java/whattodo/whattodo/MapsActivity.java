@@ -9,7 +9,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
@@ -31,7 +33,7 @@ import java.util.List;
 public class MapsActivity extends AppCompatActivity implements OnNavigationReadyCallback,
         NavigationListener, LocationEngineListener, PermissionsListener {
 
-    private Point origin = Point.fromLngLat( 18.618845,54.379029);
+    private Point origin = Point.fromLngLat( 18.618783,54.372496);
     private Point destination = Point.fromLngLat( 18.616432,54.380217);
 
     //  private Point destination = Point.fromLngLat(18.619377,54.372016);
@@ -41,7 +43,7 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     private PermissionsManager permissionsManager;
     private Location originLocation;
     private LocationEngine locationEngine;
-
+    double Long, Lat;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_AppCompat_NoActionBar);
@@ -52,6 +54,11 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
 
         enableLocation();
         origin = Point.fromLngLat(originLocation.getLongitude(),originLocation.getLatitude());
+
+        Intent intent = getIntent();
+        Long = Double.parseDouble(intent.getStringExtra("Longitude"));
+        Lat = Double.parseDouble(intent.getStringExtra("Latitude"));
+
         instructionView = findViewById(R.id.instructionView);
 
         navigationView = findViewById(R.id.navigationView);
@@ -122,6 +129,8 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
         //   navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
         navigationView.findViewById(R.id.instructionLayout).setEnabled(false);
 
+        destination = Point.fromLngLat(Long,Lat);
+
         NavigationViewOptions options = NavigationViewOptions.builder()
                 .origin(origin)
                 .destination(destination)
@@ -136,6 +145,8 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     @Override
     public void onCancelNavigation() {
         navigationView.onDestroy();
+   //     Toast.makeText(MapsActivity.this, "long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+   //     Log.d("loc","long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude());
         Intent intent = new Intent(MapsActivity.this,Main2Activity.class);
         MapsActivity.this.startActivity(intent);
     }

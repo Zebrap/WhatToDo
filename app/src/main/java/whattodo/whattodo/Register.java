@@ -93,11 +93,28 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                             @Override
                             public void onResponse(String response) {
                                 // Display the first 500 characters of the response string.
-                                AlertDialog.Builder bulder = new AlertDialog.Builder(Register.this);
-                                bulder.setMessage("Rejestracja")
-                                        .setNegativeButton(response,null)
-                                        .create()
-                                        .show();
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(response);
+                                    String success = jsonObject.getString("result");
+
+                                    if(success.equals("true")){
+                                        AlertDialog.Builder bulder = new AlertDialog.Builder(Register.this);
+                                        bulder.setMessage("Pomyślna rejestracja")
+                                                .setNegativeButton("Zaloguj się",null)
+                                                .create()
+                                                .show();
+                                    }else{
+                                        AlertDialog.Builder bulder = new AlertDialog.Builder(Register.this);
+                                        bulder.setMessage("Rejestracja nieudana")
+                                                .setNegativeButton("spróbuj ponownie: ",null)
+                                                .create()
+                                                .show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         }, new Response.ErrorListener() {
                     @Override
