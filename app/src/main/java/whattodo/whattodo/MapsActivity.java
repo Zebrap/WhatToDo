@@ -2,6 +2,7 @@ package whattodo.whattodo;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -19,6 +20,9 @@ import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.DirectionsCriteria;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -27,15 +31,25 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions;
 import com.mapbox.services.android.navigation.ui.v5.OnNavigationReadyCallback;
 import com.mapbox.services.android.navigation.ui.v5.instruction.InstructionView;
 import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener;
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
+import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener;
+import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress;
+import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgressState;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MapsActivity extends AppCompatActivity implements OnNavigationReadyCallback,
-        NavigationListener, LocationEngineListener, PermissionsListener {
+        NavigationListener, LocationEngineListener, PermissionsListener, ProgressChangeListener {
 
     private Point origin = Point.fromLngLat( 18.618783,54.372496);
     private Point destination = Point.fromLngLat( 18.616432,54.380217);
-
+ //   private Point destination = Point.fromLngLat( 18.601657,54.368251);
+ //   private Point destination = Point.fromLngLat(18.620022,54.378355); // ds7
     //  private Point destination = Point.fromLngLat(18.619377,54.372016);
 
     private NavigationView navigationView;
@@ -43,8 +57,12 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     private PermissionsManager permissionsManager;
     private Location originLocation;
     private LocationEngine locationEngine;
+    private DirectionsRoute currentRoute;
     double Long, Lat;
+    private Boolean endLocation = false;
+
     @Override
+    @SuppressWarnings("MissingPermission")
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_AppCompat_NoActionBar);
         super.onCreate(savedInstanceState);
@@ -53,7 +71,13 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
         setContentView(R.layout.activity_maps);
 
         enableLocation();
-        origin = Point.fromLngLat(originLocation.getLongitude(),originLocation.getLatitude());
+        Location lastLocation = locationEngine.getLastLocation();
+        locationEngine.activate();
+        locationEngine.addLocationEngineListener(this);
+        String location = "";
+        if (lastLocation != null) {
+            origin = Point.fromLngLat(originLocation.getLongitude(),originLocation.getLatitude());
+        }
 
         Intent intent = getIntent();
         Long = Double.parseDouble(intent.getStringExtra("Longitude"));
@@ -122,14 +146,31 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
         super.onDestroy();
         navigationView.onDestroy();
     }
-
     @Override
-    public void onNavigationReady() {
+    public void onNavigationReady(boolean isRunning) {
         navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
         //   navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
         navigationView.findViewById(R.id.instructionLayout).setEnabled(false);
 
         destination = Point.fromLngLat(Long,Lat);
+        getRoute();
+/*
+        NavigationViewOptions options = NavigationViewOptions.builder()
+                .directionsRoute(currentRoute)
+                .shouldSimulateRoute(false)
+                .navigationListener(this)
+                .build();
+
+
+        navigationView.startNavigation(options);*/
+    }
+/*    @Override
+    public void onNavigationReady() {
+        navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+        //   navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
+        navigationView.findViewById(R.id.instructionLayout).setEnabled(false);
+
+    //    destination = Point.fromLngLat(Long,Lat);
 
         NavigationViewOptions options = NavigationViewOptions.builder()
                 .origin(origin)
@@ -138,21 +179,22 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
                 .navigationListener(this)
                 .build();
 
+
         navigationView.startNavigation(options);
-    }
-
-
+    }*/
     @Override
     public void onCancelNavigation() {
-        navigationView.onDestroy();
+        onDestroy();
+   //     navigationView.onDestroy();
    //     Toast.makeText(MapsActivity.this, "long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude(), Toast.LENGTH_SHORT).show();
    //     Log.d("loc","long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude());
-        Intent intent = new Intent(MapsActivity.this,Main2Activity.class);
-        MapsActivity.this.startActivity(intent);
+  //      Intent intent = new Intent(MapsActivity.this,Main2Activity.class);
+   //     MapsActivity.this.startActivity(intent);
     }
 
     @Override
     public void onNavigationFinished() {
+
     }
 
     @Override
@@ -210,6 +252,72 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
         }
     }
 
+    @Override
+    public void onProgressChange(Location location, RouteProgress routeProgress) {
+        if (routeProgress.currentState().equals(RouteProgressState.ROUTE_ARRIVED)) {
+            if(!endLocation){
+                endLocation = true;
+                String name = "nazwa";
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString("find","1");
+                editor.commit();
+                Toast.makeText(MapsActivity.this, "Gratulacje dotarłeś do celu:"+name+", sprawdź i oceń później", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void getRoute(){
+       // destination = Point.fromLngLat(Long,Lat);
+        NavigationRoute.builder(this)
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        if(response.body() == null){
+                            Log.e("tag","No routs found, check right user and access token");
+                            return;
+                        }else if(response.body().routes().size()==0){
+                            Log.e("tag","No routes found");
+                            return;
+                        }
+                        currentRoute = response.body().routes().get(0);
+                        DirectionsRoute directionsRoute = response.body().routes().get(0);
+                        startNavigation(directionsRoute);
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                        Log.e("tag","Error"+t.getMessage());
+                    }
+                });
+    }
+
+    private void startNavigation(DirectionsRoute directionsRoute) {
+        // Example
+      /*  NavigationViewOptions.Builder options =
+                NavigationViewOptions.builder()
+                        .navigationListener(this)
+                        .directionsRoute(directionsRoute)
+                        .shouldSimulateRoute(true)
+                        .progressChangeListener(this)
+                        .instructionListListener(this)
+                        .speechAnnouncementListener(this)
+                        .bannerInstructionsListener(this);
+        setBottomSheetCallback(options);
+        setupNightModeFab();*/
+
+        NavigationViewOptions.Builder options = NavigationViewOptions.builder()
+                .navigationListener(this)
+                .directionsRoute(directionsRoute)
+                .shouldSimulateRoute(true)
+                .progressChangeListener(this);
+
+        navigationView.startNavigation(options.build());
+    }
 }
 
 

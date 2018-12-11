@@ -50,7 +50,7 @@ import javax.net.ssl.HttpsURLConnection;
 import retrofit2.http.GET;
 
 public class Main2Activity extends AppCompatActivity implements View.OnClickListener, LocationEngineListener, PermissionsListener {
-    private Button btnLogout, btnFind;
+    private Button btnLogout, btnFind, btnRate;
     private CheckBox checkFood, checkAlcohol, checkActive, checkTourism, checkGroup;
     private SeekBar seekBar, seekTime;
     private EditText etPrice;
@@ -59,6 +59,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
     private Location originLocation;
     private LocationEngine locationEngine;
     private String username;
+    private String activeRate;
 
 
     @Override
@@ -68,8 +69,11 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
 
         btnLogout =  findViewById(R.id.btnLogout);
         btnFind =  findViewById(R.id.btnFind);
+        btnRate = findViewById(R.id.btnRate);
         btnLogout.setOnClickListener(this);
         btnFind.setOnClickListener(this);
+        btnRate.setOnClickListener(this);
+        btnRate.setEnabled(false);
         TextUsername = findViewById(R.id.etUsername);
         seekBar = findViewById(R.id.seekBar);
         textDistance = findViewById(R.id.textViewDistance);
@@ -106,6 +110,12 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
             progress = Integer.parseInt(pref.getString("time",""));
             textTime.setText(pref.getString("time","")+" h");
             seekTime.setProgress(progress-1);
+            activeRate = pref.getString("find","");
+            if(activeRate.equals("1")){
+                btnRate.setEnabled(true);
+            }else{
+                btnRate.setEnabled(false);
+            }
         }
 
     /*    String massage = "Witaj "+username;
@@ -129,12 +139,15 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(this,MainActivity.class));
                 break;
             case R.id.btnFind:
-
+                btnFind.setEnabled(false);
                 SetPref();
         //       Toast.makeText(Main2Activity.this, "long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude(), Toast.LENGTH_SHORT).show();
 
            //     startActivity(new Intent(this,MapsActivity.class));
             //    Toast.makeText(Main2Activity.this, "Check box:"+checkFood.isChecked(), Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btnRate:
+                startActivity(new Intent(this,RateActivity.class));
                 break;
         }
     }
@@ -183,6 +196,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                 }
         );
     }
+    @SuppressWarnings("MissingPermission")
     public void SetPref(){
         String url = "https://whattodowebservice.azurewebsites.net/set_pref";
 
@@ -199,7 +213,14 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         Boolean active = checkActive.isChecked();
         int distance = seekBar.getProgress()+1;
         int time = seekTime.getProgress()+1;
-        String location = ""+originLocation.getLongitude()+" "+originLocation.getLatitude();
+    //   String location = ""+originLocation.getLongitude()+" "+originLocation.getLatitude();
+        Location lastLocation = locationEngine.getLastLocation();
+        locationEngine.activate();
+        locationEngine.addLocationEngineListener(this);
+        String location = "";
+        if (lastLocation != null) {
+             location = ""+originLocation.getLatitude()+" "+originLocation.getLongitude();
+        }
 
 
 /*      Map<String, String> params = new HashMap<String, String>();
@@ -232,7 +253,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
             e.printStackTrace();
         }
 
-        Log.d("Response ", jsonObj.toString());
+        Log.d("Response ", jsonObj.toString()+" loc:"+location);
 
         RequestQueue queue = Volley.newRequestQueue(Main2Activity.this);
 
@@ -255,19 +276,23 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                                 intent.putExtra("Longitude",Longitude);
                                 intent.putExtra("Latitude",Latitude);
 
+                                btnFind.setEnabled(true);
                                 Main2Activity.this.startActivity(intent);
 
                             }else{
+                                btnFind.setEnabled(true);
                                 Toast.makeText(Main2Activity.this, "Nie udało się", Toast.LENGTH_SHORT).show();
                             }
 
                         } catch (JSONException e) {
+                            btnFind.setEnabled(true);
                             e.printStackTrace();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                btnFind.setEnabled(true);
                 Log.e("Response", error.getMessage(), error);
             }
         }) { //no semicolon or coma
@@ -304,6 +329,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    @SuppressWarnings("MissingPermission")
     @Override
     public void onConnected() {
         locationEngine.requestLocationUpdates();
@@ -326,5 +352,24 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         if(granted){
             enableLocation();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        if (pref.contains("username")) {
+            activeRate = pref.getString("find","");
+            if(activeRate.equals("1")){
+                btnRate.setEnabled(true);
+            }else{
+                btnRate.setEnabled(false);
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 }

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnLogin:
+                btnLogin.setEnabled(false);
                 final String username = etUsername.getText().toString();
                 final String password = etPassword.getText().toString();
               /*  if(username.equals("a")){
@@ -101,14 +103,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         editor.putString("tourism",tourism);
                                         editor.putString("active",active);
                                         editor.putString("time",time);
+                                        editor.putString("find","0");
                                         editor.commit();
+                             //           Toast.makeText(MainActivity.this, "Poprawne zalogowanie, witam: "+username, Toast.LENGTH_SHORT).show();
 
                                         Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                                         intent.putExtra("username",username);
+                                        btnLogin.setEnabled(true);
 
                                         MainActivity.this.startActivity(intent);
                                     }else{
                                         AlertDialog.Builder bulder = new AlertDialog.Builder(MainActivity.this);
+                                        btnLogin.setEnabled(true);
+
+                                   //     Toast.makeText(MainActivity.this, "Logowanie nieudane", Toast.LENGTH_SHORT).show();
                                         bulder.setMessage("Logowanie nieudane")
                                                 .setNegativeButton("spróbuj ponownie: ",null)
                                                 .create()
@@ -117,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                                 } catch (JSONException e) {
+                                    btnLogin.setEnabled(true);
+                                    Toast.makeText(MainActivity.this, "Logowanie nieudane", Toast.LENGTH_SHORT).show();
                                     e.printStackTrace();
                                 }
 
@@ -124,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        btnLogin.setEnabled(true);
                         AlertDialog.Builder bulder = new AlertDialog.Builder(MainActivity.this);
                         bulder.setMessage("Error")
                                 .setNegativeButton("Error",null)
@@ -151,4 +162,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+}
+
 }

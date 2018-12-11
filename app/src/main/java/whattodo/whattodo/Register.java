@@ -47,6 +47,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnRegister:
+                btnRegister.setEnabled(false);
           /*      String email = etEmail.getText().toString();
                 String username = etUsername.getText().toString();
                 String passowrd = etPassword.getText().toString();
@@ -99,12 +100,14 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                                     String success = jsonObject.getString("result");
 
                                     if(success.equals("true")){
+                                        btnRegister.setEnabled(true);
                                         AlertDialog.Builder bulder = new AlertDialog.Builder(Register.this);
                                         bulder.setMessage("Pomyślna rejestracja")
                                                 .setNegativeButton("Zaloguj się",null)
                                                 .create()
                                                 .show();
                                     }else{
+                                        btnRegister.setEnabled(true);
                                         AlertDialog.Builder bulder = new AlertDialog.Builder(Register.this);
                                         bulder.setMessage("Rejestracja nieudana")
                                                 .setNegativeButton("spróbuj ponownie: ",null)
@@ -112,6 +115,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                                                 .show();
                                     }
                                 } catch (JSONException e) {
+                                    btnRegister.setEnabled(true);
                                     e.printStackTrace();
                                 }
 
@@ -119,6 +123,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        btnRegister.setEnabled(true);
                         AlertDialog.Builder bulder = new AlertDialog.Builder(Register.this);
                         bulder.setMessage("Error")
                                 .setNegativeButton("Error",null)
