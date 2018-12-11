@@ -111,7 +111,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
             textTime.setText(pref.getString("time","")+" h");
             seekTime.setProgress(progress-1);
             activeRate = pref.getString("find","");
-            if(activeRate.equals("1")){
+            if(activeRate.equals("true")){
                 btnRate.setEnabled(true);
             }else{
                 btnRate.setEnabled(false);
@@ -196,6 +196,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                 }
         );
     }
+
     @SuppressWarnings("MissingPermission")
     public void SetPref(){
         String url = "https://whattodowebservice.azurewebsites.net/set_pref";
@@ -267,21 +268,33 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
                             String result = response.getString("result");
                             if(result.equals("true")){
                                 Toast.makeText(Main2Activity.this, "Znalenziono atrakcje", Toast.LENGTH_SHORT).show();
-                                String localization = response.getString("Lokalizacja");
+                                String attraction_id = response.getString("ATTRACTION_ID");
+                                String attraction_name = response.getString("NAME");
+                                String Longitude = response.getString("POS_X");
+                                String Latitude = response.getString("POS_Y");
+                                String desc = response.getString("DESCRIPTION");
+                         /*       String localization = response.getString("Lokalizacja");
                                 String Latitude = localization.substring(0,8) ;
-                                String Longitude = localization.substring(10,18);
-                                Log.d("Response", "localization, long: "+Longitude+" Lat: "+Latitude);
+                                String Longitude = localization.substring(10,18);*/
+                                Log.d("Response", "localization, long: "+Longitude+" Lat: "+Latitude+
+                                        " attraction_id:"+attraction_id+" attraction_name: "+attraction_name+" desc:"+desc);
+
+                                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.putString("attraction_id",attraction_id);
+                                editor.commit();
 
                                 Intent intent = new Intent(Main2Activity.this,MapsActivity.class);
                                 intent.putExtra("Longitude",Longitude);
                                 intent.putExtra("Latitude",Latitude);
+                                intent.putExtra("attraction_name",attraction_name);
 
                                 btnFind.setEnabled(true);
                                 Main2Activity.this.startActivity(intent);
 
                             }else{
                                 btnFind.setEnabled(true);
-                                Toast.makeText(Main2Activity.this, "Nie udało się", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Main2Activity.this, "Nie udało się znaleźć atrakcji, zmień preferencje", Toast.LENGTH_SHORT).show();
                             }
 
                         } catch (JSONException e) {
@@ -360,7 +373,7 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
         if (pref.contains("username")) {
             activeRate = pref.getString("find","");
-            if(activeRate.equals("1")){
+            if(activeRate.equals("true")){
                 btnRate.setEnabled(true);
             }else{
                 btnRate.setEnabled(false);
@@ -370,6 +383,9 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onBackPressed() {
-
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }

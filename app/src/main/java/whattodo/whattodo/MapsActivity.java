@@ -14,6 +14,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -58,7 +63,8 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     private Location originLocation;
     private LocationEngine locationEngine;
     private DirectionsRoute currentRoute;
-    double Long, Lat;
+    private double Long, Lat;
+    private String attraction_name;
     private Boolean endLocation = false;
 
     @Override
@@ -82,6 +88,7 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
         Intent intent = getIntent();
         Long = Double.parseDouble(intent.getStringExtra("Longitude"));
         Lat = Double.parseDouble(intent.getStringExtra("Latitude"));
+        attraction_name = intent.getStringExtra("attraction_name");
 
         instructionView = findViewById(R.id.instructionView);
 
@@ -152,7 +159,7 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
         //   navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
         navigationView.findViewById(R.id.instructionLayout).setEnabled(false);
 
-        destination = Point.fromLngLat(Long,Lat);
+       destination = Point.fromLngLat(Long,Lat);
         getRoute();
 /*
         NavigationViewOptions options = NavigationViewOptions.builder()
@@ -184,7 +191,7 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     }*/
     @Override
     public void onCancelNavigation() {
-        onDestroy();
+        onBackPressed();
    //     navigationView.onDestroy();
    //     Toast.makeText(MapsActivity.this, "long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude(), Toast.LENGTH_SHORT).show();
    //     Log.d("loc","long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude());
@@ -259,10 +266,27 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
                 endLocation = true;
                 String name = "nazwa";
                 SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+                String username = pref.getString("username", "");
+                String attraction_id = pref.getString("attraction_id", "");
                 SharedPreferences.Editor editor = pref.edit();
-                editor.putString("find","1");
+                editor.putString("find","true");
                 editor.commit();
-                Toast.makeText(MapsActivity.this, "Gratulacje dotarłeś do celu:"+name+", sprawdź i oceń później", Toast.LENGTH_SHORT).show();
+                String url ="https://whattodowebservice.azurewebsites.net/visit?login="+username+"&attractionid="+attraction_id;
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                        new com.android.volley.Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+
+                            }
+                        }, new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MapsActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                RequestQueue queue = Volley.newRequestQueue(MapsActivity.this);
+                queue.add(stringRequest);
+                Toast.makeText(MapsActivity.this, "Gratulacje dotarłeś do celu: "+attraction_name+", sprawdź i oceń później", Toast.LENGTH_SHORT).show();
             }
         }
     }

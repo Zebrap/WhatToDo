@@ -79,6 +79,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String success = jsonObject.getString("result");
+                                    String can_rate =  jsonObject.getString("can_rate");
+                                    String attraction_id =  jsonObject.getString("ATTRACTION_ID");
+
                                     JSONObject jsonPref = new JSONObject(jsonObject.getString("preferences"));
                                     String price = jsonPref.getString("Cena");
                                     String distance = jsonPref.getString("Odleglosc");
@@ -91,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                     Log.d("array","array: "+price);
                                     if(success.equals("true")){
-
                                         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
                                         SharedPreferences.Editor editor = pref.edit();
                                         editor.putString("username",username);
@@ -103,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         editor.putString("tourism",tourism);
                                         editor.putString("active",active);
                                         editor.putString("time",time);
-                                        editor.putString("find","0");
+                                        editor.putString("find",can_rate);
+                                        editor.putString("attraction_id",attraction_id);
                                         editor.commit();
                              //           Toast.makeText(MainActivity.this, "Poprawne zalogowanie, witam: "+username, Toast.LENGTH_SHORT).show();
 
