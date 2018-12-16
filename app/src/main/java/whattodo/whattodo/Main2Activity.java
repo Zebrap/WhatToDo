@@ -141,10 +141,6 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
             case R.id.btnFind:
                 btnFind.setEnabled(false);
                 SetPref();
-        //       Toast.makeText(Main2Activity.this, "long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude(), Toast.LENGTH_SHORT).show();
-
-           //     startActivity(new Intent(this,MapsActivity.class));
-            //    Toast.makeText(Main2Activity.this, "Check box:"+checkFood.isChecked(), Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btnRate:
                 startActivity(new Intent(this,RateActivity.class));
@@ -222,20 +218,6 @@ public class Main2Activity extends AppCompatActivity implements View.OnClickList
         if (lastLocation != null) {
              location = ""+originLocation.getLatitude()+" "+originLocation.getLongitude();
         }
-
-
-/*      Map<String, String> params = new HashMap<String, String>();
-        params.put("Login", "admin");
-        params.put("Cena", "20");
-        params.put("Odleglosc", "5");
-        params.put("Jedzenie", "false");
-        params.put("Alkohol", "false");
-        params.put("Grupowe", "false");
-        params.put("Zabytki", "false");
-        params.put("Aktywne", "false");
-        params.put("Lokalizacja", "54.372496 18.618783");
-        params.put("CzasMin", "0");
-        params.put("CzasMax", "5");*/
 
         JSONObject jsonObj = new JSONObject();
         try {

@@ -35,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnLogin,btnRegister;
     private EditText etUsername, etPassword;
 
-  //  UserLocal userLocal;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,16 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 btnLogin.setEnabled(false);
                 final String username = etUsername.getText().toString();
                 final String password = etPassword.getText().toString();
-              /*  if(username.equals("a")){
-                    Intent intent = new Intent(MainActivity.this,Main2Activity.class);
-                    intent.putExtra("username",username);
-
-                    MainActivity.this.startActivity(intent);
-                }*/
-
-           //     LoginRequest loginRequest = new LoginRequest(username,passowrd,responseListener);
                String url ="https://whattodowebservice.azurewebsites.net/login?login="+username+"&password="+password;
-        //       String url ="https://whattodowebservice.azurewebsites.net/login?login=admin&password=admin"; // Tests
 
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                         new Response.Listener<String>() {
@@ -108,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         editor.putString("find",can_rate);
                                         editor.putString("attraction_id",attraction_id);
                                         editor.commit();
-                             //           Toast.makeText(MainActivity.this, "Poprawne zalogowanie, witam: "+username, Toast.LENGTH_SHORT).show();
-
                                         Intent intent = new Intent(MainActivity.this,Main2Activity.class);
                                         intent.putExtra("username",username);
                                         btnLogin.setEnabled(true);
@@ -118,8 +105,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }else{
                                         AlertDialog.Builder bulder = new AlertDialog.Builder(MainActivity.this);
                                         btnLogin.setEnabled(true);
-
-                                   //     Toast.makeText(MainActivity.this, "Logowanie nieudane", Toast.LENGTH_SHORT).show();
                                         bulder.setMessage("Logowanie nieudane")
                                                 .setNegativeButton("spróbuj ponownie: ",null)
                                                 .create()
@@ -145,19 +130,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .show();
                     }
                 });
-            /*     prawdopodobnie źle dodaje parametry / inna konstrukcja url
-            {
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("login",username);
-                        params.put("password",passowrd);
-                        return params;
-                    }
-                };*/
 
                 RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-              //  Log.i("url",stringRequest.toString(),null);
                 queue.add(stringRequest);
                 break;
             case R.id.btnRegister:

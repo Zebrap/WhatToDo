@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -53,9 +54,6 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
 
     private Point origin = Point.fromLngLat( 18.618783,54.372496);
     private Point destination = Point.fromLngLat( 18.616432,54.380217);
- //   private Point destination = Point.fromLngLat( 18.601657,54.368251);
- //   private Point destination = Point.fromLngLat(18.620022,54.378355); // ds7
-    //  private Point destination = Point.fromLngLat(18.619377,54.372016);
 
     private NavigationView navigationView;
     private InstructionView instructionView;
@@ -156,47 +154,13 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     @Override
     public void onNavigationReady(boolean isRunning) {
         navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-        //   navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
         navigationView.findViewById(R.id.instructionLayout).setEnabled(false);
 
-       destination = Point.fromLngLat(Long,Lat);
         getRoute();
-/*
-        NavigationViewOptions options = NavigationViewOptions.builder()
-                .directionsRoute(currentRoute)
-                .shouldSimulateRoute(false)
-                .navigationListener(this)
-                .build();
-
-
-        navigationView.startNavigation(options);*/
     }
-/*    @Override
-    public void onNavigationReady() {
-        navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-        //   navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
-        navigationView.findViewById(R.id.instructionLayout).setEnabled(false);
-
-    //    destination = Point.fromLngLat(Long,Lat);
-
-        NavigationViewOptions options = NavigationViewOptions.builder()
-                .origin(origin)
-                .destination(destination)
-                .shouldSimulateRoute(false)
-                .navigationListener(this)
-                .build();
-
-
-        navigationView.startNavigation(options);
-    }*/
     @Override
     public void onCancelNavigation() {
         onBackPressed();
-   //     navigationView.onDestroy();
-   //     Toast.makeText(MapsActivity.this, "long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude(), Toast.LENGTH_SHORT).show();
-   //     Log.d("loc","long: "+originLocation.getLongitude()+" lat:"+originLocation.getLatitude());
-  //      Intent intent = new Intent(MapsActivity.this,Main2Activity.class);
-   //     MapsActivity.this.startActivity(intent);
     }
 
     @Override
@@ -286,13 +250,17 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
                 });
                 RequestQueue queue = Volley.newRequestQueue(MapsActivity.this);
                 queue.add(stringRequest);
-                Toast.makeText(MapsActivity.this, "Gratulacje dotarłeś do celu: "+attraction_name+", sprawdź i oceń później", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder bulder = new AlertDialog.Builder(MapsActivity.this);
+                    bulder.setMessage("Gratulacje dotarłeś do celu: "+attraction_name+", sprawdź i oceń później")
+                            .setNegativeButton("Ok",null)
+                            .create()
+                            .show();
             }
         }
     }
 
     private void getRoute(){
-       // destination = Point.fromLngLat(Long,Lat);
+        destination = Point.fromLngLat(Long,Lat);
         NavigationRoute.builder(this)
                 .accessToken(Mapbox.getAccessToken())
                 .origin(origin)
@@ -321,18 +289,6 @@ public class MapsActivity extends AppCompatActivity implements OnNavigationReady
     }
 
     private void startNavigation(DirectionsRoute directionsRoute) {
-        // Example
-      /*  NavigationViewOptions.Builder options =
-                NavigationViewOptions.builder()
-                        .navigationListener(this)
-                        .directionsRoute(directionsRoute)
-                        .shouldSimulateRoute(true)
-                        .progressChangeListener(this)
-                        .instructionListListener(this)
-                        .speechAnnouncementListener(this)
-                        .bannerInstructionsListener(this);
-        setBottomSheetCallback(options);
-        setupNightModeFab();*/
 
         NavigationViewOptions.Builder options = NavigationViewOptions.builder()
                 .navigationListener(this)
